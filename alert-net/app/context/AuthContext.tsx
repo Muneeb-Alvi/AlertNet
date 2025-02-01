@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { createContext, useState, useContext, useEffect } from 'react';
-import { auth } from '../firebaseConfig.js'; // Make sure this path is correct
-import { User } from 'firebase/auth';
+import type React from "react";
+import { createContext, useState, useContext, useEffect } from "react";
+import { auth } from "../firebaseConfig.js"; // Make sure this path is correct
+import { User } from "firebase/auth";
 
 type AuthContextType = {
   isLoggedIn: boolean;
@@ -15,9 +15,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       await auth.signOut();
       setIsLoggedIn(false);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -60,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

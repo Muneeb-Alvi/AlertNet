@@ -200,33 +200,28 @@ export default function MapComponent({
 
   // Load Google Maps script
   useEffect(() => {
+    const scriptId = "google-maps-script";
     if (!window.google) {
-      // Create script element
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_API_KEY}&callback=initMap`;
-      script.async = true;
-      script.defer = true;
+      // Check if the script element is already present
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_API_KEY}&callback=initMap`;
+        script.async = true;
+        script.defer = true;
 
-      // Define callback
-      // Inside your useEffect where you create the script:
-      window.initMap = () => {
-        console.log("initMap callback called");
-        initializeMap();
-      };
+        // Define the callback
+        window.initMap = () => {
+          console.log("initMap callback called");
+          initializeMap();
+        };
 
-      // Handle errors
-      script.onerror = () => {
-        setLoadError("Failed to load Google Maps");
-      };
+        script.onerror = () => {
+          setLoadError("Failed to load Google Maps");
+        };
 
-      document.head.appendChild(script);
-
-      return () => {
-        document.head.removeChild(script);
-        if (window.initMap) {
-          delete window.initMap;
-        }
-      };
+        document.head.appendChild(script);
+      }
     } else {
       console.log("window.google already exists, calling initializeMap directly");
       initializeMap();
