@@ -16,7 +16,6 @@ export function AlertCard({ alert, className }: AlertCardProps) {
         <div className='flex-1'>
           <h4 className='font-semibold'>{alert.title}</h4>
           <p className='text-sm text-muted-foreground mt-1'>{alert.description}</p>
-          <p className='text-sm text-muted-foreground mt-1'>{alert.description}</p>
           <p className='text-xs text-muted-foreground mt-1'>City: {alert.locationDescription}</p>
           <p className='text-xs text-muted-foreground mt-1'>Category: {alert.category}</p>
           <p className='text-xs text-muted-foreground mt-1'>

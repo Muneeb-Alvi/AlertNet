@@ -40,8 +40,8 @@ export default function Home() {
             cluster: data.cluster,
             category: data.category,
             prob_true_llm_news: data.prob_true_llm_news,
-            num_affirmatives: data.num_affirmatives,
-            num_responses: data.num_responses,
+            num_affirmatives: Number(data.num_affirmatives),
+            num_responses: Number(data.num_responses),
           };
         });
         setAlerts(alertList);
