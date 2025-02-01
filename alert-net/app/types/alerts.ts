@@ -7,4 +7,9 @@ export type Alert = {
     lng: number;
   };
   locationDescription: string;
+  votes: {
+    upvotes: number;
+    downvotes: number;
+    userVote?: "up" | "down" | null;
+  };
 };

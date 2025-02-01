@@ -5,14 +5,19 @@ import AlertList from "./components/AlertList";
 import Link from "next/link";
 import { Button } from "./components/ui/button";
 import { Shield, Bell, Users, Brain, BarChartIcon as ChartBar } from "lucide-react";
+import type { Alert } from "./types/alerts";
 
-const alerts = [
+const alerts: Alert[] = [
   {
     id: 1,
     title: "Suspicious activity",
     description: "Saw someone trying to break into a car",
     location: { lat: 25.2048, lng: 55.2708 },
     locationDescription: "Downtown Dubai, near Dubai Mall",
+    votes: {
+      upvotes: 0,
+      downvotes: 0,
+    },
   },
   {
     id: 2,
@@ -20,6 +25,10 @@ const alerts = [
     description: "Golden retriever last seen in the park",
     location: { lat: 25.1972, lng: 55.2744 },
     locationDescription: "Zabeel Park, near Gate 3",
+    votes: {
+      upvotes: 0,
+      downvotes: 0,
+    },
   },
 ];
 

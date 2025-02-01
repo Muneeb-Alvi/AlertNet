@@ -10,12 +10,16 @@ import Link from "next/link";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
   const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login();
+    const email = (e.currentTarget.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (e.currentTarget.elements.namedItem("password") as HTMLInputElement).value;
+    login(email, password);
     router.push("/");
   };
 
@@ -40,6 +44,8 @@ export default function Login() {
                 id='email'
                 required
                 className='w-full p-2 border rounded bg-input text-foreground'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -51,6 +57,8 @@ export default function Login() {
                 id='password'
                 required
                 className='w-full p-2 border rounded bg-input text-foreground'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <Button type='submit' className='w-full'>

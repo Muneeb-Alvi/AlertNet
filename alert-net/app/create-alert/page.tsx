@@ -47,9 +47,10 @@ export default function CreateAlert() {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
+          // Update state in CreateAlert
           setLocation(coords);
-          // Here you would typically use a reverse geocoding service to get a human-readable address
           setLocationDescription(`Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+          // Optionally, call handleLocationSelect to trigger marker creation
           handleLocationSelect(coords);
         },
         (error) => {
