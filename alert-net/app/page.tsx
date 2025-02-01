@@ -33,7 +33,7 @@ export default function Home() {
             title: data.title ?? "Untitled", // Provide default if missing
             description: data.description ?? "",
             location: data.location ?? { lat: 0, lng: 0 }, // You might want to handle this more gracefully
-            locationDescription: data.locationDescription ?? "",
+            locationDescription: data.location_description ?? "",
           };
         });
         setAlerts(alertList);

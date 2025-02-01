@@ -8,7 +8,8 @@ import Footer from "../components/Footer";
 import { Button } from "../components/ui/button";
 import Link from "next/link";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
+import { setDoc, doc } from "firebase/firestore";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -24,7 +25,13 @@ export default function Login() {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        // Sign up new user and get the user credential
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Create a document in the "users" collection with the user's UID
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          email,
+          credibility: -1, // initial credibility value
+        });
       }
 
       router.push("/");
