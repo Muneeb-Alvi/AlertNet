@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { ThumbsUp, ThumbsDown, Loader2 } from 'lucide-react';
-import { submitVote, getUserVote } from '../actions/votes';
-import { Button } from './ui/button';
-import { useToast } from './ui/use-toast';
-import { cn } from '../lib/utils';
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
+import { submitVote, getUserVote } from "../actions/votes";
+import { Button } from "./ui/button";
+import { useToast } from "./ui/use-toast";
+import { cn } from "../lib/utils";
 
 interface VoteProps {
   alertId: string;
@@ -24,9 +24,7 @@ export function Vote({
   const { user } = useAuth();
   const { toast } = useToast();
   const [userVote, setUserVote] = useState<boolean | null>(null);
-  const [affirmativeCount, setAffirmativeCount] = useState(
-    initialAffirmativeCount
-  );
+  const [affirmativeCount, setAffirmativeCount] = useState(initialAffirmativeCount);
   const [negativeCount, setNegativeCount] = useState(initialNegativeCount);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,9 +41,9 @@ export function Vote({
   const handleVote = async (affirmative: boolean) => {
     if (!user?.uid) {
       toast({
-        title: 'Authentication required',
-        description: 'Please login to vote',
-        variant: 'destructive',
+        title: "Authentication required",
+        description: "Please login to vote",
+        variant: "destructive",
       });
       return;
     }
@@ -88,9 +86,9 @@ export function Vote({
       setNegativeCount(initialNegativeCount);
 
       toast({
-        title: 'Error',
-        description: 'Failed to submit vote. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to submit vote. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -98,15 +96,13 @@ export function Vote({
   };
 
   return (
-    <div className={cn('flex justify-center space-x-4', className)}>
+    <div className={cn("flex justify-center space-x-4", className)}>
       <Button
         onClick={() => handleVote(true)}
-        variant={userVote === true ? 'default' : 'outline'}
-        className={cn(
-          'flex items-center',
-          userVote === true && 'bg-green-600 hover:bg-green-700'
-        )}
-        disabled={isLoading}>
+        variant={userVote === true ? "default" : "outline"}
+        className={cn("flex items-center", userVote === true && "bg-green-600 hover:bg-green-700")}
+        disabled={isLoading}
+      >
         {isLoading ? (
           <Loader2 className='mr-2 h-4 w-4 animate-spin' />
         ) : (
@@ -116,12 +112,10 @@ export function Vote({
       </Button>
       <Button
         onClick={() => handleVote(false)}
-        variant={userVote === false ? 'default' : 'outline'}
-        className={cn(
-          'flex items-center',
-          userVote === false && 'bg-red-600 hover:bg-red-700'
-        )}
-        disabled={isLoading}>
+        variant={userVote === false ? "default" : "outline"}
+        className={cn("flex items-center", userVote === false && "bg-red-600 hover:bg-red-700")}
+        disabled={isLoading}
+      >
         {isLoading ? (
           <Loader2 className='mr-2 h-4 w-4 animate-spin' />
         ) : (

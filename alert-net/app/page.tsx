@@ -38,6 +38,10 @@ export default function Home() {
             }, // You might want to handle this more gracefully
             locationDescription: data.location_description ?? "",
             cluster: data.cluster,
+            category: data.category,
+            prob_true_llm_news: data.prob_true_llm_news,
+            num_affirmatives: data.num_affirmatives,
+            num_responses: data.num_responses,
           };
         });
         setAlerts(alertList);

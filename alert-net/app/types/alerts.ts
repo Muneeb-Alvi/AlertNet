@@ -10,5 +10,7 @@ export type Alert = {
   num_affirmatives: number;
   num_responses: number;
   prob_true_logistic: number;
+  category: string;
+  prob_true_llm_news: number;
   // ... other fields if needed
 };
