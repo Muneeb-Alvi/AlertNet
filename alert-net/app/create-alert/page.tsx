@@ -46,7 +46,7 @@ export default function CreateAlert() {
         cluster: 0,
         num_affirmatives: 0,
         num_responses: 0,
-        prob_true_llm_news: "",
+        prob_true_llm_news: 0,
         prob_true_logistic: "",
       };
 
