@@ -1,97 +1,98 @@
-"use server";
+"use server"
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
+import { db } from "../firebaseConfig"
+import { doc, getDoc, setDoc, deleteDoc, runTransaction, serverTimestamp } from "firebase/firestore"
 
-type VoteType = "up" | "down";
+interface VoteData {
+  affirmative: boolean
+  alert_id: string
+  user_id: string
+  time: any // Firebase Timestamp
+}
 
-export async function submitVote(alertId: string, voteType: VoteType, userId: string | null) {
+export async function submitVote(alertId: string, affirmative: boolean, userId: string | null) {
   if (!userId) {
-    // Store the intended vote in the session or URL params when implementing
-    // the return-to-previous-page functionality
-    redirect("/login");
+    redirect("/login")
   }
 
   try {
-    // Here you would typically:
-    // 1. Check if user has already voted
-    // 2. Remove previous vote if exists
-    // 3. Add new vote
-    // 4. Update alert vote counts
+    const voteRef = doc(db, "votes", `${alertId}_${userId}`)
+    
+    await runTransaction(db, async (transaction) => {
+      const voteDoc = await transaction.get(voteRef)
+      const alertRef = doc(db, "alerts", alertId)
+      const alertDoc = await transaction.get(alertRef)
 
-    // Example SQL (adjust according to your database schema):
-    /*
-    // Check existing vote
-    const existingVote = await db.vote.findFirst({
-      where: {
-        alertId,
-        userId,
-      },
-    })
+      if (!alertDoc.exists()) {
+        throw new Error("Alert not found")
+      }
 
-    if (existingVote) {
-      if (existingVote.type === voteType) {
-        // Remove vote if clicking same button
-        await db.vote.delete({
-          where: {
-            id: existingVote.id,
-          },
-        })
+      const alertData = alertDoc.data()
+      const affirmativeCount = alertData.affirmativeCount || 0
+      const negativeCount = alertData.negativeCount || 0
+      
+      if (voteDoc.exists()) {
+        const existingVote = voteDoc.data() as VoteData
+        if (existingVote.affirmative === affirmative) {
+          // Remove vote if clicking same button
+          transaction.delete(voteRef)
+          transaction.update(alertRef, {
+            [affirmative ? "affirmativeCount" : "negativeCount"]: 
+              affirmative ? affirmativeCount - 1 : negativeCount - 1
+          })
+        } else {
+          // Update vote if changing from affirmative to negative or vice versa
+          transaction.set(voteRef, { 
+            affirmative, 
+            alert_id: alertId,
+            user_id: userId,
+            time: serverTimestamp()
+          })
+          transaction.update(alertRef, {
+            affirmativeCount: affirmative ? affirmativeCount + 1 : affirmativeCount - 1,
+            negativeCount: affirmative ? negativeCount - 1 : negativeCount + 1
+          })
+        }
       } else {
-        // Update vote if changing from up to down or vice versa
-        await db.vote.update({
-          where: {
-            id: existingVote.id,
-          },
-          data: {
-            type: voteType,
-          },
+        // Create new vote
+        transaction.set(voteRef, {
+          affirmative,
+          alert_id: alertId,
+          user_id: userId,
+          time: serverTimestamp()
+        })
+        transaction.update(alertRef, {
+          [affirmative ? "affirmativeCount" : "negativeCount"]: 
+            affirmative ? affirmativeCount + 1 : negativeCount + 1
         })
       }
-    } else {
-      // Create new vote
-      await db.vote.create({
-        data: {
-          alertId,
-          userId,
-          type: voteType,
-        },
-      })
-    }
-    */
+    })
 
-    // For now, just log the vote (replace with actual database calls)
-    console.log(`Vote submitted: Alert ${alertId}, Type ${voteType}, User ${userId}`);
-
-    // Revalidate the page to reflect the new vote counts
-    revalidatePath("/");
-
-    return { success: true };
+    revalidatePath("/")
+    return { success: true }
   } catch (error) {
-    console.error("Error submitting vote:", error);
-    return { success: false, error: "Failed to submit vote" };
+    console.error("Error submitting vote:", error)
+    return { success: false, error: "Failed to submit vote" }
   }
 }
 
-export async function getUserVote(alertId: number, userId: string | null) {
-  if (!userId) return null;
+export async function getUserVote(alertId: string, userId: string | null) {
+  if (!userId) return null
 
   try {
-    // Example SQL (adjust according to your database schema):
-    /*
-    const vote = await db.vote.findFirst({
-      where: {
-        alertId,
-        userId,
-      },
-    })
-    return vote?.type || null
-    */
+    const voteRef = doc(db, "votes", `${alertId}_${userId}`)
+    const voteDoc = await getDoc(voteRef)
 
-    // For now, return null (replace with actual database query)
-    return null;
+    if (voteDoc.exists()) {
+      const voteData = voteDoc.data() as VoteData
+      return voteData.affirmative
+    }
+
+    return null
   } catch (error) {
-    console.error("Error fetching user vote:", error);
-    return null;
+    console.error("Error fetching user vote:", error)
+    return null
   }
 }
