@@ -1,42 +1,81 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { useAuth } from "../context/AuthContext";
-import MapComponent from "../components/MapComponent";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import { toast } from "../components/ui/use-toast";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
+import MapComponent from '../components/MapComponent';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { toast } from '../components/ui/use-toast';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '../firebaseConfig';
 
 export default function CreateAlert() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [time, setTime] = useState("");
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationDescription, setLocationDescription] = useState("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [time, setTime] = useState('');
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
+  const [locationDescription, setLocationDescription] = useState('');
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
-  // Calculate the minimum time (3 hours ago)
-  const minTime = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 16);
+  const minTime = new Date(Date.now() - 3 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 16);
   const maxTime = new Date().toISOString().slice(0, 16);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!location) return;
 
-    // Here you would typically send the alert data to your backend
-    console.log({ title, description, time, location, locationDescription });
-    router.push("/");
+    try {
+      if (!db) {
+        throw new Error('Database connection not available');
+      }
+      const alertData = {
+        title,
+        description,
+        time,
+        location: {
+          lat: location.lat,
+          lng: location.lng,
+        },
+        location_description: locationDescription,
+        createdAt: serverTimestamp(),
+        userId: auth.currentUser?.uid,
+        userEmail: auth.currentUser?.email,
+        status: 'active',
+      };
+
+      const alertsRef = collection(db, 'alerts');
+      await addDoc(alertsRef, alertData);
+
+      toast({
+        title: 'Success',
+        description: 'Alert has been created successfully',
+      });
+
+      router.push('/');
+    } catch (error) {
+      console.error('Error creating alert:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create alert. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleLocationSelect = (coords: { lat: number; lng: number }) => {
     setLocation(coords);
-    // Here you would typically use a reverse geocoding service to get a human-readable address
-    setLocationDescription(`Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+    setLocationDescription(
+      `Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
+    );
   };
 
   const getCurrentLocation = () => {
@@ -48,37 +87,40 @@ export default function CreateAlert() {
             lng: position.coords.longitude,
           };
           setLocation(coords);
-          // Here you would typically use a reverse geocoding service to get a human-readable address
-          setLocationDescription(`Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+          setLocationDescription(
+            `Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
+          );
           handleLocationSelect(coords);
         },
         (error) => {
-          console.error("Error getting location:", error);
+          console.error('Error getting location:', error);
           toast({
-            title: "Location Error",
-            description: "Unable to get your current location. Please select on the map.",
-            variant: "destructive",
+            title: 'Location Error',
+            description:
+              'Unable to get your current location. Please select on the map.',
+            variant: 'destructive',
           });
         },
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
     } else {
       toast({
-        title: "Geolocation Unavailable",
-        description: "Your browser doesn't support geolocation. Please select on the map.",
-        variant: "destructive",
+        title: 'Geolocation Unavailable',
+        description:
+          "Your browser doesn't support geolocation. Please select on the map.",
+        variant: 'destructive',
       });
     }
   };
 
   useEffect(() => {
     if (!isLoggedIn) {
-      router.push("/login");
+      router.push('/login');
     }
   }, [isLoggedIn, router]);
 
   if (!isLoggedIn) {
-    return null; // or a loading indicator if you prefer
+    return null;
   }
 
   return (
@@ -102,7 +144,9 @@ export default function CreateAlert() {
             </div>
 
             <div>
-              <label htmlFor='description' className='block text-sm font-medium mb-2'>
+              <label
+                htmlFor='description'
+                className='block text-sm font-medium mb-2'>
                 Description
               </label>
               <Textarea
@@ -139,8 +183,7 @@ export default function CreateAlert() {
                 type='button'
                 variant='secondary'
                 onClick={getCurrentLocation}
-                className='mb-4'
-              >
+                className='mb-4'>
                 Use Current Location
               </Button>
 
@@ -158,7 +201,8 @@ export default function CreateAlert() {
 
               {!location && (
                 <p className='text-sm text-muted-foreground mt-2'>
-                  Please select a location on the map or use your current location
+                  Please select a location on the map or use your current
+                  location
                 </p>
               )}
             </div>
