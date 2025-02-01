@@ -10,6 +10,8 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "../components/ui/use-toast";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
 
 export default function CreateAlert() {
   const [title, setTitle] = useState("");
@@ -20,22 +22,53 @@ export default function CreateAlert() {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
-  // Calculate the minimum time (3 hours ago)
   const minTime = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 16);
   const maxTime = new Date().toISOString().slice(0, 16);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!location) return;
 
-    // Here you would typically send the alert data to your backend
-    console.log({ title, description, time, location, locationDescription });
-    router.push("/");
+    try {
+      if (!db) {
+        throw new Error("Database connection not available");
+      }
+      const alertData = {
+        title,
+        description,
+        time,
+        location: {
+          lat: location.lat,
+          lng: location.lng,
+        },
+        location_description: locationDescription,
+        createdAt: serverTimestamp(),
+        userId: auth.currentUser?.uid,
+        userEmail: auth.currentUser?.email,
+        status: "active",
+      };
+
+      const alertsRef = collection(db, "alerts");
+      await addDoc(alertsRef, alertData);
+
+      toast({
+        title: "Success",
+        description: "Alert has been created successfully",
+      });
+
+      router.push("/");
+    } catch (error) {
+      console.error("Error creating alert:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create alert. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleLocationSelect = (coords: { lat: number; lng: number }) => {
     setLocation(coords);
-    // Here you would typically use a reverse geocoding service to get a human-readable address
     setLocationDescription(`Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
   };
 
@@ -49,8 +82,7 @@ export default function CreateAlert() {
           };
           // Update state in CreateAlert
           setLocation(coords);
-          setLocationDescription(`Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
-          // Optionally, call handleLocationSelect to trigger marker creation
+          // setLocationDescription(`Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
           handleLocationSelect(coords);
         },
         (error) => {
@@ -79,7 +111,7 @@ export default function CreateAlert() {
   }, [isLoggedIn, router]);
 
   if (!isLoggedIn) {
-    return null; // or a loading indicator if you prefer
+    return null;
   }
 
   return (
@@ -132,6 +164,20 @@ export default function CreateAlert() {
               <p className='text-sm text-muted-foreground mt-1'>
                 You can report incidents that occurred up to 3 hours ago
               </p>
+            </div>
+
+            <div>
+              <label htmlFor='locationDescription' className='block text-sm font-medium mb-2'>
+                Location Description
+              </label>
+              <Textarea
+                id='locationDescription'
+                value={locationDescription}
+                onChange={(e) => setLocationDescription(e.target.value)}
+                required
+                rows={4}
+                placeholder='Description of the area where it happened'
+              />
             </div>
 
             <div>

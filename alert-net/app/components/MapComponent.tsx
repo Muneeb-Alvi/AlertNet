@@ -146,6 +146,7 @@ export default function MapComponent({
   useEffect(() => {
     const scriptId = "google-maps-script";
     if (!window.google) {
+      // Check if the script element is already present
       if (!document.getElementById(scriptId)) {
         const script = document.createElement("script");
         script.id = scriptId;
@@ -153,7 +154,9 @@ export default function MapComponent({
         script.async = true;
         script.defer = true;
 
+        // Define the callback
         window.initMap = () => {
+          console.log("initMap callback called");
           initializeMap();
         };
 

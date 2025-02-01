@@ -1,3 +1,5 @@
+"use client";
+import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MapComponent from "./components/MapComponent";
@@ -5,34 +7,44 @@ import AlertList from "./components/AlertList";
 import Link from "next/link";
 import { Button } from "./components/ui/button";
 import { Shield, Bell, Users, Brain, BarChartIcon as ChartBar } from "lucide-react";
-import type { Alert } from "./types/alerts";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "./firebaseConfig";
+import { Alert } from "./types/alerts";
 
-const alerts: Alert[] = [
-  {
-    id: 1,
-    title: "Suspicious activity",
-    description: "Saw someone trying to break into a car",
-    location: { lat: 25.2048, lng: 55.2708 },
-    locationDescription: "Downtown Dubai, near Dubai Mall",
-    votes: {
-      upvotes: 0,
-      downvotes: 0,
-    },
-  },
-  {
-    id: 2,
-    title: "Lost pet",
-    description: "Golden retriever last seen in the park",
-    location: { lat: 25.1972, lng: 55.2744 },
-    locationDescription: "Zabeel Park, near Gate 3",
-    votes: {
-      upvotes: 0,
-      downvotes: 0,
-    },
-  },
-];
+// interface Alert {
+//   id: string;
+//   title: string;
+//   description: string;
+//   location: { lat: number; lng: number };
+//   locationDescription: string;
+// }
 
 export default function Home() {
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      try {
+        const alertsCollection = collection(db, "alerts");
+        const alertSnapshot = await getDocs(alertsCollection);
+        const alertList: Alert[] = alertSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title ?? "Untitled", // Provide default if missing
+            description: data.description ?? "",
+            location: data.location ?? { lat: 0, lng: 0 }, // You might want to handle this more gracefully
+            locationDescription: data.locationDescription ?? "",
+          };
+        });
+        setAlerts(alertList);
+      } catch (error) {
+        console.error("Error fetching alerts:", error);
+      }
+    };
+
+    fetchAlerts();
+  }, []);
+
   return (
     <div className='flex flex-col min-h-screen bg-background text-foreground'>
       <Header />
