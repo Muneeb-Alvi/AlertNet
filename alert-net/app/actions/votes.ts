@@ -16,7 +16,7 @@ interface VoteData {
   affirmative: boolean;
   alert_id: string;
   user_id: string;
-  time: any; // Firebase Timestamp
+  time: any;
 }
 
 export async function submitVote(alertId: string, affirmative: boolean, userId: string | null) {
@@ -37,34 +37,21 @@ export async function submitVote(alertId: string, affirmative: boolean, userId: 
       }
 
       const alertData = alertDoc.data();
-      const affirmativeCount = alertData.num_affirmatives || 0;
-      const negativeCount = alertData.num_responses - alertData.num_affirmatives || 0;
-
       if (voteDoc.exists()) {
         const existingVote = voteDoc.data() as VoteData;
         if (existingVote.affirmative === affirmative) {
-          // Remove vote if clicking same button
           transaction.delete(voteRef);
-          transaction.update(alertRef, {
-            [affirmative ? "affirmativeCount" : "negativeCount"]: affirmative
-              ? affirmativeCount - 1
-              : negativeCount - 1,
-          });
-        } else {
-          // Update vote if changing from affirmative to negative or vice versa
-          transaction.set(voteRef, {
-            affirmative,
-            alert_id: alertId,
-            user_id: userId,
-            time: serverTimestamp(),
-          });
-          transaction.update(alertRef, {
-            affirmativeCount: affirmative ? affirmativeCount + 1 : affirmativeCount - 1,
-            negativeCount: affirmative ? negativeCount - 1 : negativeCount + 1,
+              if (affirmative) {
+                transaction.update(alertRef, {
+              num_responses: alertData.num_responses - 1,
+              num_affirmatives: alertData.num_affirmatives - 1
+                });
+          } else {
+            transaction.update(alertRef, {
+              num_responses: alertData.num_responses - 1
           });
         }
       } else {
-        // Create new vote
         transaction.set(voteRef, {
           affirmative,
           alert_id: alertId,
@@ -72,10 +59,28 @@ export async function submitVote(alertId: string, affirmative: boolean, userId: 
           time: serverTimestamp(),
         });
         transaction.update(alertRef, {
-          [affirmative ? "affirmativeCount" : "negativeCount"]: affirmative
-            ? affirmativeCount + 1
-            : negativeCount + 1,
+            num_affirmatives: affirmative 
+              ? alertData.num_affirmatives + 1 
+              : alertData.num_affirmatives - 1
         });
+      }
+      } else {
+        transaction.set(voteRef, {
+          affirmative,
+          alert_id: alertId,
+          user_id: userId,
+          time: serverTimestamp(),
+    });
+        if (affirmative) {
+          transaction.update(alertRef, {
+            num_responses: alertData.num_responses + 1,
+            num_affirmatives: alertData.num_affirmatives + 1
+          });
+        } else {
+          transaction.update(alertRef, {
+            num_responses: alertData.num_responses + 1
+          });
+        }
       }
     });
 

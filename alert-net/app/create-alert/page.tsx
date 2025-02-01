@@ -1,29 +1,31 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { useAuth } from "../context/AuthContext";
-import MapComponent from "../components/MapComponent";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import { toast } from "../components/ui/use-toast";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db, auth } from "../firebaseConfig";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
+import MapComponent from '../components/MapComponent';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { toast } from '../components/ui/use-toast';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '../firebaseConfig';
 
 export default function CreateAlert() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [time, setTime] = useState("");
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationDescription, setLocationDescription] = useState("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [time, setTime] = useState('');
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
+  const [locationDescription, setLocationDescription] = useState('');
   const router = useRouter();
   const { isLoggedIn } = useAuth();
 
-  const minTime = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 16);
-  const maxTime = new Date().toISOString().slice(0, 16);
+  // const minTime = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 16);
+  // const maxTime = new Date().toISOString().slice(0, 16);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ export default function CreateAlert() {
 
     try {
       if (!db) {
-        throw new Error("Database connection not available");
+        throw new Error('Database connection not available');
       }
       const alertData = {
         title,
@@ -42,36 +44,38 @@ export default function CreateAlert() {
         location_description: locationDescription,
         entry_date_time: serverTimestamp(),
         creator_user_id: auth.currentUser?.uid,
-        category: "",
+        category: '',
         cluster: 0,
         num_affirmatives: 0,
         num_responses: 0,
         prob_true_llm_news: 0,
-        prob_true_logistic: "",
+        prob_true_logistic: '',
       };
 
-      const alertsRef = collection(db, "alerts");
+      const alertsRef = collection(db, 'alerts');
       await addDoc(alertsRef, alertData);
 
       toast({
-        title: "Success",
-        description: "Alert has been created successfully",
+        title: 'Success',
+        description: 'Alert has been created successfully',
       });
 
-      router.push("/");
+      router.push('/');
     } catch (error) {
-      console.error("Error creating alert:", error);
+      console.error('Error creating alert:', error);
       toast({
-        title: "Error",
-        description: "Failed to create alert. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to create alert. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
   const handleLocationSelect = (coords: { lat: number; lng: number }) => {
     setLocation(coords);
-    setLocationDescription(`Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+    setLocationDescription(
+      `Near ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
+    );
   };
 
   const getCurrentLocation = () => {
@@ -88,27 +92,29 @@ export default function CreateAlert() {
           handleLocationSelect(coords);
         },
         (error) => {
-          console.error("Error getting location:", error);
+          console.error('Error getting location:', error);
           toast({
-            title: "Location Error",
-            description: "Unable to get your current location. Please select on the map.",
-            variant: "destructive",
+            title: 'Location Error',
+            description:
+              'Unable to get your current location. Please select on the map.',
+            variant: 'destructive',
           });
         },
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
     } else {
       toast({
-        title: "Geolocation Unavailable",
-        description: "Your browser doesn't support geolocation. Please select on the map.",
-        variant: "destructive",
+        title: 'Geolocation Unavailable',
+        description:
+          "Your browser doesn't support geolocation. Please select on the map.",
+        variant: 'destructive',
       });
     }
   };
 
   useEffect(() => {
     if (!isLoggedIn) {
-      router.push("/login");
+      router.push('/login');
     }
   }, [isLoggedIn, router]);
 
@@ -137,7 +143,9 @@ export default function CreateAlert() {
             </div>
 
             <div>
-              <label htmlFor='description' className='block text-sm font-medium mb-2'>
+              <label
+                htmlFor='description'
+                className='block text-sm font-medium mb-2'>
                 Description
               </label>
               <Textarea
@@ -159,8 +167,8 @@ export default function CreateAlert() {
                 id='time'
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                min={minTime}
-                max={maxTime}
+                // min={minTime}
+                // max={maxTime}
                 required
               />
               <p className='text-sm text-muted-foreground mt-1'>
@@ -169,7 +177,9 @@ export default function CreateAlert() {
             </div>
 
             <div>
-              <label htmlFor='locationDescription' className='block text-sm font-medium mb-2'>
+              <label
+                htmlFor='locationDescription'
+                className='block text-sm font-medium mb-2'>
                 Location Description
               </label>
               <Textarea
@@ -188,8 +198,7 @@ export default function CreateAlert() {
                 type='button'
                 variant='secondary'
                 onClick={getCurrentLocation}
-                className='mb-4'
-              >
+                className='mb-4'>
                 Use Current Location
               </Button>
 
@@ -207,7 +216,8 @@ export default function CreateAlert() {
 
               {!location && (
                 <p className='text-sm text-muted-foreground mt-2'>
-                  Please select a location on the map or use your current location
+                  Please select a location on the map or use your current
+                  location
                 </p>
               )}
             </div>
