@@ -39,7 +39,7 @@ export default function Home() {
             locationDescription: data.location_description ?? "",
             cluster: data.cluster,
             category: data.category,
-            prob_true_llm_news: data.prob_true_llm_news,
+            prob_true_random_forrest: data.prob_true_random_forrest,
             num_affirmatives: Number(data.num_affirmatives),
             num_responses: Number(data.num_responses),
           };

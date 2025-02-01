@@ -19,7 +19,7 @@ export function AlertCard({ alert, className }: AlertCardProps) {
           <p className='text-xs text-muted-foreground mt-1'>City: {alert.locationDescription}</p>
           <p className='text-xs text-muted-foreground mt-1'>Category: {alert.category}</p>
           <p className='text-xs text-muted-foreground mt-1'>
-            LLM Credibility Score (out of 1): {alert.prob_true_llm_news}
+            LLM Credibility Score (out of 1): {Number(alert.prob_true_random_forrest).toFixed(2)}
           </p>
         </div>
         <Vote

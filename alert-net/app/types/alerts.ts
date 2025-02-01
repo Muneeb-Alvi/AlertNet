@@ -11,6 +11,6 @@ export type Alert = {
   num_responses: number;
   prob_true_logistic: number;
   category: string;
-  prob_true_llm_news: number;
+  prob_true_random_forrest: number;
   // ... other fields if needed
 };
