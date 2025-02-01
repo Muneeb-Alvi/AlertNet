@@ -32,8 +32,12 @@ export default function Home() {
             id: doc.id,
             title: data.title ?? "Untitled", // Provide default if missing
             description: data.description ?? "",
-            location: data.location ?? { lat: 0, lng: 0 }, // You might want to handle this more gracefully
+            location: {
+              lat: Number(data.latitude), // or data.location.lat if stored as an object
+              lng: Number(data.longitude), // or data.location.lng if stored as an object
+            }, // You might want to handle this more gracefully
             locationDescription: data.location_description ?? "",
+            cluster: data.cluster,
           };
         });
         setAlerts(alertList);

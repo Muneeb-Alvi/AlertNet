@@ -30,6 +30,14 @@ declare global {
   }
 }
 
+// Helper function that maps a cluster (0-100) to an HSL color.
+function getColorFromCluster(cluster: number): string {
+  // For example, multiply cluster by 3.6 (so 100 => 360 degrees)
+  const hue = cluster * 3.6;
+  // Fix saturation and lightness (adjust these values as needed)
+  return `hsl(${hue}, 70%, 50%)`;
+}
+
 export default function MapComponent({
   onLocationSelect,
   interactive = false,
@@ -85,15 +93,61 @@ export default function MapComponent({
       }
 
       alerts.forEach((alert) => {
+        let lat: number, lng: number;
+        console.log(alert);
+
+        // Prefer the unified location object if it exists
+        if (alert.location && typeof alert.location === "object") {
+          lat = Number(alert.location.lat);
+          lng = Number(alert.location.lng);
+        } else {
+          // Fallback to separate fields (if applicable)
+          if (
+            typeof alert.latitude === "object" &&
+            alert.latitude !== null &&
+            "latitude" in alert.latitude
+          ) {
+            lat = alert.latitude.latitude;
+          } else {
+            lat = Number(alert.latitude);
+          }
+
+          if (
+            typeof alert.longitude === "object" &&
+            alert.longitude !== null &&
+            "longitude" in alert.longitude
+          ) {
+            lng = alert.longitude.longitude;
+          } else {
+            lng = Number(alert.longitude);
+          }
+        }
+
+        // Validate the coordinates
+        if (isNaN(lat) || isNaN(lng)) {
+          console.warn(`Invalid coordinates for alert ${alert.id}:`, alert);
+          return;
+        }
+
+        // Compute marker color from the cluster value (assuming getColorFromCluster exists)
+        const markerColor = getColorFromCluster(alert.cluster);
+
+        // Create an SVG icon with the computed color.
+        const iconSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${markerColor}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin">
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  `;
+
+        // Create the marker position
+        const alertPosition = { lat, lng };
+
         const marker = new window.google.maps.Marker({
-          position: alert.location,
+          position: alertPosition,
           map: map,
           icon: {
-            url:
-              "data:image/svg+xml;charset=UTF-8," +
-              encodeURIComponent(
-                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>'
-              ),
+            url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(iconSvg),
             scaledSize: new window.google.maps.Size(30, 30),
           },
         });
@@ -117,6 +171,8 @@ export default function MapComponent({
   }, [interactive, onLocationSelect, selectedLocation, alerts]);
 
   const updateSelectedLocationMarker = useCallback((location: { lat: number; lng: number }) => {
+    console.log("updateSelectedLocationMarker called with:", location);
+
     markersRef.current = markersRef.current.filter((marker) => {
       if (marker.getTitle() === "selected-location") {
         marker.setMap(null);
@@ -131,6 +187,7 @@ export default function MapComponent({
         map: mapRef.current,
         title: "selected-location",
         icon: {
+          // For debugging, use a fixed red color so it's easily visible.
           url:
             "data:image/svg+xml;charset=UTF-8," +
             encodeURIComponent(
@@ -140,13 +197,14 @@ export default function MapComponent({
         },
       });
       markersRef.current.push(marker);
+      console.log("selected marker added:", marker);
     }
   }, []);
 
   useEffect(() => {
+    console.log("Script loading effect running.");
     const scriptId = "google-maps-script";
     if (!window.google) {
-      // Check if the script element is already present
       if (!document.getElementById(scriptId)) {
         const script = document.createElement("script");
         script.id = scriptId;
@@ -167,18 +225,21 @@ export default function MapComponent({
         document.head.appendChild(script);
       }
     } else {
+      console.log("window.google already exists, calling initializeMap directly");
       initializeMap();
     }
   }, [initializeMap]);
 
   useLayoutEffect(() => {
     if (mapContainerRef.current && window.google && !mapLoaded) {
+      console.log("useLayoutEffect: map container available, initializing map");
       initializeMap();
     }
   }, [mapLoaded, initializeMap]);
 
   useEffect(() => {
     if (initialLocation) {
+      console.log("initialLocation received:", initialLocation);
       updateSelectedLocationMarker(initialLocation);
       setSelectedLocation(initialLocation);
     }
@@ -212,19 +273,16 @@ export default function MapComponent({
   return (
     <div className='relative w-full h-[400px] rounded-lg overflow-hidden border border-border'>
       <div ref={mapContainerRef} style={mapContainerStyle} />
-
       {!mapLoaded && (
         <div className='absolute inset-0 flex items-center justify-center bg-muted/80'>
           <div className='animate-pulse'>Loading maps...</div>
         </div>
       )}
-
       {selectedAlert && (
         <div className='absolute z-10 bottom-4 left-4 right-4'>
           <AlertCard alert={selectedAlert} />
         </div>
       )}
-
       {interactive && (
         <div className='absolute top-4 left-4 right-4 bg-background border rounded-lg shadow-lg p-4'>
           <p className='text-sm text-muted-foreground'>
