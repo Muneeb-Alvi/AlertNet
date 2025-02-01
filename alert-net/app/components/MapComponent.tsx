@@ -36,7 +36,7 @@ export default function MapComponent({
   initialLocation,
   alerts = [],
 }: MapComponentProps) {
-  const [selectedPin, setSelectedPin] = useState<number | null>(null);
+  const [selectedPin, setSelectedPin] = useState<string | null>(null);
   const selectedAlert = alerts.find((alert) => alert.id === selectedPin);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(
     initialLocation || null

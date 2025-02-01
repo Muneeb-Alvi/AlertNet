@@ -57,8 +57,6 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className='w-full p-2 border rounded bg-input text-foreground'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -72,8 +70,6 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className='w-full p-2 border rounded bg-input text-foreground'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <Button type='submit' className='w-full'>

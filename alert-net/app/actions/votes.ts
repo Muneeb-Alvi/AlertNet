@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 type VoteType = "up" | "down";
 
-export async function submitVote(alertId: number, voteType: VoteType, userId: string | null) {
+export async function submitVote(alertId: string, voteType: VoteType, userId: string | null) {
   if (!userId) {
     // Store the intended vote in the session or URL params when implementing
     // the return-to-previous-page functionality
