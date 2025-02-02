@@ -10,6 +10,7 @@ import { Shield, Bell, Users, Brain, BarChartIcon as ChartBar } from "lucide-rea
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { Alert } from "./types/alerts";
+import { Timestamp } from "firebase/firestore";
 
 // interface Alert {
 //   id: string;
@@ -42,6 +43,7 @@ export default function Home() {
             prob_true_random_forrest: data.prob_true_random_forrest,
             num_affirmatives: Number(data.num_affirmatives),
             num_responses: Number(data.num_responses),
+            entryDateTime: data.entry_date_time ? data.entry_date_time.toDate() : null,
           };
         });
         setAlerts(alertList);

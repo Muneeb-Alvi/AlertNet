@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 // types/alerts.ts
 export type Alert = {
   id: string;
@@ -12,5 +14,6 @@ export type Alert = {
   prob_true_logistic: number;
   category: string;
   prob_true_random_forrest: number;
+  entry_date_time: Timestamp;
   // ... other fields if needed
 };
