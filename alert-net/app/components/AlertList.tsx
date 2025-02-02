@@ -11,7 +11,7 @@ export default function AlertList({ alerts }: AlertListProps) {
     .sort((a, b) => b.entry_date_time.getTime() - a.entry_date_time.getTime()); // Sort by date ascending
 
   // Slice the first 5 alerts after sorting
-  const topAlerts = sortedAlerts.slice(0, 5);
+  const topAlerts = sortedAlerts.slice(0, 3);
 
   return (
     <div>
