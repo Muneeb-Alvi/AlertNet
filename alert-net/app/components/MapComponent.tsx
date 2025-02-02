@@ -19,8 +19,8 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = {
-  lat: 25.2048, // Dubai coordinates
-  lng: 55.2708,
+  lat: 30.0444, // Dubai coordinates
+  lng: 31.2357,
 };
 
 declare global {
