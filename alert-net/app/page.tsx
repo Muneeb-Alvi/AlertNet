@@ -43,7 +43,7 @@ export default function Home() {
             prob_true_random_forrest: data.prob_true_random_forrest,
             num_affirmatives: Number(data.num_affirmatives),
             num_responses: Number(data.num_responses),
-            entryDateTime: data.entry_date_time ? data.entry_date_time.toDate() : null,
+            entry_date_time: data.entry_date_time ? data.entry_date_time.toDate() : null,
           };
         });
         setAlerts(alertList);
