@@ -19,7 +19,7 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = {
-  lat: 30.0444, // Dubai coordinates
+  lat: 30.0525, // Dubai coordinates
   lng: 31.2357,
 };
 
@@ -65,7 +65,7 @@ export default function MapComponent({
     try {
       const mapOptions: google.maps.MapOptions = {
         center: selectedLocation || defaultCenter,
-        zoom: 10,
+        zoom: 13,
         disableDefaultUI: false,
         zoomControl: true,
         streetViewControl: true,
