@@ -25,7 +25,7 @@ export async function submitVote(alertId: string, affirmative: boolean, userId: 
   }
 
   try {
-    const voteRef = doc(db, "votes", `${alertId}_${userId}`);
+    const voteRef = doc(db, "interactions", `${alertId}_${userId}`);
 
     await runTransaction(db, async (transaction) => {
       const voteDoc = await transaction.get(voteRef);
@@ -96,7 +96,7 @@ export async function getUserVote(alertId: string, userId: string | null) {
   if (!userId) return null;
 
   try {
-    const voteRef = doc(db, "votes", `${alertId}_${userId}`);
+    const voteRef = doc(db, "interactions", `${alertId}_${userId}`);
     const voteDoc = await getDoc(voteRef);
 
     if (voteDoc.exists()) {
