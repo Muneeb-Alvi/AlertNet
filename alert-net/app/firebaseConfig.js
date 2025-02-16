@@ -9,8 +9,8 @@ import { getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: "alertnet-12de6.firebaseapp.com",
-  projectId: "alertnet-12de6",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: "alertnet-12de6.firebasestorage.app",
   messagingSenderId: "236263651864",
   appId: "1:236263651864:web:161c0a404db5cc6842216d",
