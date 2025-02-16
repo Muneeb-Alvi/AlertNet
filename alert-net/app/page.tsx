@@ -44,6 +44,9 @@ export default function Home() {
             num_affirmatives: Number(data.num_affirmatives),
             num_responses: Number(data.num_responses),
             entry_date_time: data.entry_date_time ? data.entry_date_time.toDate() : null,
+            prob_true_logistic: data.prob_true_logistic,
+            latitude: data.latitude,
+            longitude: data.longitude,
           };
         });
         setAlerts(alertList);

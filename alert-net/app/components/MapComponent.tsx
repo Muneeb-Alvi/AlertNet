@@ -97,17 +97,17 @@ export default function MapComponent({
         console.log(alert);
 
         // Prefer the unified location object if it exists
-        if (alert.location && typeof alert.location === "object") {
-          lat = Number(alert.location.lat);
-          lng = Number(alert.location.lng);
+        if ((alert as any).location && typeof (alert as any).location === "object") {
+          lat = Number((alert as any).location.lat);
+          lng = Number((alert as any).location.lng);
         } else {
-          // Fallback to separate fields (if applicable)
+          // Fallback to separate latitude/longitude fields
           if (
             typeof alert.latitude === "object" &&
             alert.latitude !== null &&
             "latitude" in alert.latitude
           ) {
-            lat = alert.latitude.latitude;
+            lat = alert.latitude;
           } else {
             lat = Number(alert.latitude);
           }
@@ -117,7 +117,7 @@ export default function MapComponent({
             alert.longitude !== null &&
             "longitude" in alert.longitude
           ) {
-            lng = alert.longitude.longitude;
+            lng = alert.longitude;
           } else {
             lng = Number(alert.longitude);
           }
