@@ -7,7 +7,7 @@ export type Alert = {
   description: string;
   latitude: number;
   longitude: number;
-  location_description: string;
+  locationDescription: string;
   cluster: number;
   num_affirmatives: number;
   num_responses: number;
