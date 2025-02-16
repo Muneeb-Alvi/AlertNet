@@ -7,8 +7,8 @@ interface AlertListProps {
 export default function AlertList({ alerts }: AlertListProps) {
   // Sort the alerts by entry_date_time in ascending order (earliest first)
   const sortedAlerts = alerts
-    .filter((alert) => alert.entry_date_time !== null) // Optional: Filter out alerts with no date
-    .sort((a, b) => b.entry_date_time.getTime() - a.entry_date_time.getTime()); // Sort by date ascending
+    .filter((alert) => alert.entry_date_time !== null) // Filter out alerts with no date
+    .sort((a, b) => b.entry_date_time.toDate().getTime() - a.entry_date_time.toDate().getTime());
 
   // Slice the first 5 alerts after sorting
   const topAlerts = sortedAlerts.slice(0, 3);
